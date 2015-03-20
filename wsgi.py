@@ -1,14 +1,20 @@
+import os
+import mimetypes
+
 import wsgiref.validate
 
 from utils import parse_http_x_www_form_urlencoded_post_data, \
     get_first_element, parse_http_get_data, parse_http_headers, \
     parse_http_content_type, parse_http_uri
 
+
+CWD = os.path.dirname(os.path.abspath(__file__))
+
 DEBUG = True
 STATIC_URL = '/static/'
-STATIC_ROOT = 'data'
+STATIC_ROOT = os.path.join(CWD, 'data')
 
-message_pattern = '<p class="name">{0}</p><p class="message">{1}</p>'
+MESSAGE_PATTERN = '<p class="name">{0}</p><p class="message">{1}</p>'
 data_messages = [
     b'<p class="name">user</p><p class="message">hi!</p>',
     b'<p class="name">admin</p><p class="message">banhammer awaits!</p>',
@@ -39,20 +45,24 @@ def application(environ, start_response):
     if URI_PATH.startswith(STATIC_URL):
         print('STATIC FILE DETECTED!')
 
-        path = URI_PATH.replace(STATIC_URL, '')
-        path = STATIC_ROOT + "/" + path
-        print(path)
+        file_path = URI_PATH.replace(STATIC_URL, '')
+        full_path = os.path.join(STATIC_ROOT, file_path)
+        normalized_path = os.path.normpath(full_path)
 
         try:
-            with open(path, 'rb') as f:
+            if not normalized_path.startswith(STATIC_ROOT):
+                raise IOError
+
+            with open(normalized_path, 'rb') as f:
                 content = f.read()
+                mime_type = mimetypes.guess_type(normalized_path)[0]
         except:
             status = '404 Not Found'
             start_response(status, headers)
             return [b'']
 
         status = '200 OK'
-        headers = [('Content-type', HEADERS.get('ACCEPT'))]
+        headers = [('Content-type', mime_type)]
         start_response(status, headers)
         return [content]
 
@@ -72,7 +82,7 @@ def application(environ, start_response):
         headers.append(('Location', '/'))
         name = get_first_element(POST, 'name', '')
         message = get_first_element(POST, 'message', '')
-        data_message_text = message_pattern.format(name, message)
+        data_message_text = MESSAGE_PATTERN.format(name, message)
         data_message_bytes = data_message_text.encode('utf-8')
         data_messages.append(data_message_bytes)
         start_response(status, headers)
