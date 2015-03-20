@@ -8,9 +8,10 @@ DEBUG = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'data'
 
+message_pattern = '<p class="name">{0}</p><p class="message">{1}</p>'
 data_messages = [
-    b'Name: user<br>Message: hi!',
-    b'Name: user<br>Message: hi!',
+    b'<p class="name">user</p><p class="message">hi!</p>',
+    b'<p class="name">admin</p><p class="message">banhammer awaits!</p>',
 ]
 
 
@@ -38,6 +39,23 @@ def application(environ, start_response):
     if URI_PATH.startswith(STATIC_URL):
         print('STATIC FILE DETECTED!')
 
+        path = URI_PATH.replace(STATIC_URL, '')
+        path = STATIC_ROOT + "/" + path
+        print(path)
+
+        try:
+            with open(path, 'rb') as f:
+                content = f.read()
+        except:
+            status = '404 Not Found'
+            start_response(status, headers)
+            return [b'']
+
+        status = '200 OK'
+        headers = [('Content-type', HEADERS.get('ACCEPT'))]
+        start_response(status, headers)
+        return [content]
+
     if DEBUG:
         print("{REQUEST_METHOD} {URI_PATH}?{URI_QUERY} {SERVER_PROTOCOL}\n"
               "CONTENT_TYPE: {CONTENT_TYPE}; {CONTENT_TYPE_KWARGS}\n"
@@ -54,7 +72,7 @@ def application(environ, start_response):
         headers.append(('Location', '/'))
         name = get_first_element(POST, 'name', '')
         message = get_first_element(POST, 'message', '')
-        data_message_text = "Name: {0}<br>Message: {1}".format(name, message)
+        data_message_text = message_pattern.format(name, message)
         data_message_bytes = data_message_text.encode('utf-8')
         data_messages.append(data_message_bytes)
         start_response(status, headers)
@@ -65,3 +83,18 @@ def application(environ, start_response):
 
     start_response(status, headers)
     return [template_bytes]
+
+
+def get_static_content(path, query, content_type):
+    headers = [('Content-type', content_type)]
+    try:
+        with open(path, 'rb') as f:
+            content = f.read()
+    except:
+        status = '404 Not Found'
+        start_response(status, headers)
+        return [b'']
+
+    status = '200 OK'
+    start_response(status, headers)
+    return [content]
