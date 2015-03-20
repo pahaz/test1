@@ -1,4 +1,5 @@
 .idea
 *.py[cod]
+*.swp
 __pycache__
 git
