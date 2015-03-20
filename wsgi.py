@@ -17,7 +17,7 @@ STATIC_ROOT = os.path.join(CWD, 'data')
 MESSAGE_PATTERN = '<p class="name">{0}</p><p class="message">{1}</p>'
 data_messages = [
     b'<p class="name">user</p><p class="message">hi!</p>',
-    b'<p class="name">admin</p><p class="message">banhammer awaits!</p>',
+    b'<p class="name">admin</p><p class="message">banhammer awaiting!</p>',
 ]
 
 
