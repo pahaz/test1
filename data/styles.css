@@ -1,0 +1,19 @@
+.message {
+  color: #333;
+  font-size: 14px;
+  margin: 0px;
+}
+
+.name {
+  color: darkblue;
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.input-area {
+  margin: 10px;
+}
+
+hr {
+  color: white;
+}
