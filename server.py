@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from wsgiref.simple_server import make_server
 import wsgi
 
