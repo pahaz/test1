@@ -94,8 +94,9 @@ def application(environ, start_response):
 
         status = '303 See Other'
         headers.append(('Location', '/'))
-        name = POST['name'].value
-        message = POST['message'].value
+        name = remove_html_tags(POST['name'].value)
+        name = name if name else 'anonymous'
+        message = remove_html_tags(POST['message'].value)
         fileitem = POST['file']
 
         message_text = MESSAGE_PATTERN.format(name, message)
@@ -135,3 +136,6 @@ def get_random_name(dirname, extension, name_length):
         filename = name.format(random.randint(0, upper_border), **locals())
 
     return filename
+
+def remove_html_tags(line):
+    return re.sub(r'<[^>]*>', '', line)
