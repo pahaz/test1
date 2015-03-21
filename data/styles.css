@@ -31,6 +31,12 @@ body {
   
 }
 
+.related {
+  width: 150px;
+  margin: 10px;
+  margin-bottom: 0px;
+}
+
 hr {
   color: white;
 }
