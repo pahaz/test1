@@ -1,4 +1,7 @@
 import os
+import re
+import cgi
+import random
 import mimetypes
 
 import wsgiref.validate
@@ -15,6 +18,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(CWD, 'data')
 
 MESSAGE_PATTERN = '<p class="name">{0}</p><p class="message">{1}</p>'
+IMAGE_PATTERN = """<a href="/static/{0}">
+<img src="/static/{0}" class="related" /> </a>
+"""
 
 data_messages = [
     b'<p class="name">user</p><p class="message">hi!</p>',
@@ -32,8 +38,8 @@ def application(environ, start_response):
     URI_PATH = environ['PATH_INFO']
     URI_QUERY = environ['QUERY_STRING']
     URI = parse_http_uri(environ)
-    POST = parse_http_x_www_form_urlencoded_post_data(environ)
     GET = parse_http_get_data(environ)
+    POST = parse_http_x_www_form_urlencoded_post_data(environ)
 
     status = '200 OK'
     headers = [('Content-type', 'text/html; charset=utf-8')]
@@ -79,13 +85,37 @@ def application(environ, start_response):
         template_bytes = f.read()
 
     if REQUEST_METHOD == 'POST':
+
+        POST = cgi.FieldStorage(
+            fp=environ['wsgi.input'],
+            environ=environ,
+            keep_blank_values=True
+        )
+
         status = '303 See Other'
         headers.append(('Location', '/'))
-        name = get_first_element(POST, 'name', '')
-        message = get_first_element(POST, 'message', '')
-        data_message_text = MESSAGE_PATTERN.format(name, message)
-        data_message_bytes = data_message_text.encode('utf-8')
-        data_messages.append(data_message_bytes)
+        name = POST['name'].value
+        message = POST['message'].value
+        fileitem = POST['file']
+
+        message_text = MESSAGE_PATTERN.format(name, message)
+
+        if fileitem.filename:
+            extension = os.path.splitext(fileitem.filename)[1]
+            filename = get_random_name(STATIC_ROOT, extension, 10)
+            fullname = os.path.join(STATIC_ROOT, filename)
+
+            with open(fullname, 'wb') as out:
+                out.write(fileitem.file.read())
+
+            print("\nFile saved to: " + fullname)
+
+            if extension in ('.png', '.jpg', '.jpeg'):
+                image_text = IMAGE_PATTERN.format(filename)
+                message_text += image_text
+
+        message_bytes = message_text.encode('utf-8')
+        data_messages.append(message_bytes)
         start_response(status, headers)
         return [b'']
 
@@ -94,3 +124,14 @@ def application(environ, start_response):
 
     start_response(status, headers)
     return [template_bytes]
+
+
+def get_random_name(dirname, extension, name_length):
+    upper_border = int('9'*name_length)
+    name = '{0:0>{name_length}}{extension}'
+
+    filename = name.format(random.randint(0, upper_border), **locals())
+    while os.path.isfile(os.path.join(dirname, filename)):
+        filename = name.format(random.randint(0, upper_border), **locals())
+
+    return filename
