@@ -8,7 +8,8 @@ import wsgiref.validate
 
 from utils import parse_http_x_www_form_urlencoded_post_data, \
     get_first_element, parse_http_get_data, parse_http_headers, \
-    parse_http_content_type, parse_http_uri
+    parse_http_content_type, parse_http_uri, remove_html_tags, \
+    generate_random_name
 
 
 CWD = os.path.dirname(os.path.abspath(__file__))
@@ -17,14 +18,14 @@ DEBUG = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(CWD, 'data')
 
-MESSAGE_PATTERN = '<p class="name">{0}</p><p class="message">{1}</p>'
-IMAGE_PATTERN = """<a href="/static/{0}">
-<img src="/static/{0}" class="related" /> </a>
+MESSAGE_PATTERN = '<p class="name">{name}</p><p class="message">{message}</p>'
+IMAGE_PATTERN = """<a href="/static/{filename}">
+<img src="/static/{filename}" class="related" /> </a>
 """
 
 data_messages = [
     b'<p class="name">user</p><p class="message">hi!</p>',
-    b'<p class="name">admin</p><p class="message">banhammer awaiting!</p>',
+    b'<p class="name">admin</p><p class="message">banhammer awaits!</p>',
 ]
 
 
@@ -99,7 +100,7 @@ def application(environ, start_response):
         message = remove_html_tags(POST['message'].value)
         fileitem = POST['file']
 
-        message_text = MESSAGE_PATTERN.format(name, message)
+        message_text = MESSAGE_PATTERN.format(name=name, message=message)
 
         if fileitem.filename:
             extension = os.path.splitext(fileitem.filename)[1]
@@ -125,17 +126,3 @@ def application(environ, start_response):
 
     start_response(status, headers)
     return [template_bytes]
-
-
-def get_random_name(dirname, extension, name_length):
-    upper_border = int('9'*name_length)
-    name = '{0:0>{name_length}}{extension}'
-
-    filename = name.format(random.randint(0, upper_border), **locals())
-    while os.path.isfile(os.path.join(dirname, filename)):
-        filename = name.format(random.randint(0, upper_border), **locals())
-
-    return filename
-
-def remove_html_tags(line):
-    return re.sub(r'<[^>]*>', '', line)

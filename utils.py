@@ -67,3 +67,18 @@ def get_first_element(dict_, key, default=None):
     if type(val) in (list, tuple) and len(val) > 0:
         val = val[0]
     return val
+
+
+def generate_random_name(dirname, extension, name_length):
+    upper_border = int('9'*name_length)
+    name = '{0:0>{name_length}}{extension}'
+
+    filename = name.format(random.randint(0, upper_border), **locals())
+    while os.path.isfile(os.path.join(dirname, filename)):
+        filename = name.format(random.randint(0, upper_border), **locals())
+
+    return filename
+
+
+def remove_html_tags(line):
+    return re.sub(r'<[^>]*>', '', line)
