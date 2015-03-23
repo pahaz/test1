@@ -1,7 +1,5 @@
 import os
-import re
 import cgi
-import random
 import mimetypes
 
 import wsgiref.validate
@@ -104,7 +102,7 @@ def application(environ, start_response):
 
         if fileitem.filename:
             extension = os.path.splitext(fileitem.filename)[1]
-            filename = get_random_name(STATIC_ROOT, extension, 10)
+            filename = generate_random_name(STATIC_ROOT, extension, 10)
             fullname = os.path.join(STATIC_ROOT, filename)
 
             with open(fullname, 'wb') as out:
@@ -113,7 +111,7 @@ def application(environ, start_response):
             print("\nFile saved to: " + fullname)
 
             if extension in ('.png', '.jpg', '.jpeg'):
-                image_text = IMAGE_PATTERN.format(filename)
+                image_text = IMAGE_PATTERN.format(filename=filename)
                 message_text += image_text
 
         message_bytes = message_text.encode('utf-8')

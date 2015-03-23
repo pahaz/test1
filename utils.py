@@ -1,4 +1,8 @@
+import os
+import re
 import cgi
+import random
+
 from urllib.parse import parse_qs
 from warnings import warn
 from wsgiref.headers import Headers
