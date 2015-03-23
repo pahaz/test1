@@ -93,9 +93,9 @@ def application(environ, start_response):
 
         status = '303 See Other'
         headers.append(('Location', '/'))
-        name = remove_html_tags(POST['name'].value)
+        name = remove_html_tags(POST.getfirst('name'))
         name = name if name else 'anonymous'
-        message = remove_html_tags(POST['message'].value)
+        message = remove_html_tags(POST.getfirst('message'))
         fileitem = POST['file']
 
         message_text = MESSAGE_PATTERN.format(name=name, message=message)
