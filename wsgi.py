@@ -6,7 +6,7 @@ from utils import parse_http_x_www_form_urlencoded_post_data, \
 
 DEBUG = True
 STATIC_URL = '/static/'
-STATIC_ROOT = 'data'
+STATIC_ROOT = 'data/'
 
 data_messages = [
     b'Name: user<br>Message: hi!',
@@ -36,8 +36,26 @@ def application(environ, start_response):
         return [b'']
 
     if URI_PATH.startswith(STATIC_URL):
-        print('STATIC FILE DETECTED!')
+        # import os
+        import os.path
 
+        path = URI_PATH[len(STATIC_URL):]
+        normpath = os.path.normpath(path)
+        # print(normpath)
+        download_path = STATIC_ROOT + normpath
+        # print(download_path)
+        if not os.path.exists(download_path):
+            start_response("404 Not found", headers)
+            return [b'']
+        else:
+            headers = [('Content-type', 'text/plain; charset=utf-8')]
+            start_response(status, headers)
+            return [open(download_path, 'rb').read()]
+            # with open(path, 'rb') as f:
+            # start_response(status, headers)
+            # return [f.read()]
+
+    DEBUG = False
     if DEBUG:
         print("{REQUEST_METHOD} {URI_PATH}?{URI_QUERY} {SERVER_PROTOCOL}\n"
               "CONTENT_TYPE: {CONTENT_TYPE}; {CONTENT_TYPE_KWARGS}\n"
