@@ -5,7 +5,7 @@ from utils import parse_http_x_www_form_urlencoded_post_data, \
     get_first_element, parse_http_get_data, parse_http_headers, \
     parse_http_content_type, parse_http_uri
 
-DEBUG = True
+DEBUG = False
 STATIC_URL = '/static/'
 STATIC_ROOT = 'data'
 
@@ -37,7 +37,7 @@ def application(environ, start_response):
         return [b'']
 
     if URI_PATH.startswith(STATIC_URL):
-        with_static_root = URI_PATH.replace(STATIC_URL, '{}/'.format(STATIC_ROOT))
+        with_static_root = URI_PATH.replace(STATIC_URL, '{}/'.format(STATIC_ROOT), 1)
         absolute_path = path.abspath(with_static_root)
         if not absolute_path.startswith(path.abspath(STATIC_ROOT)) or not path.isfile(absolute_path):
             status = '404 Not Found'
