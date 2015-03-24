@@ -106,7 +106,10 @@ def application(environ, start_response):
             fullname = os.path.join(STATIC_ROOT, filename)
 
             with open(fullname, 'wb') as out:
-                out.write(fileitem.file.read())
+                token = fileitem.file.read(1024)
+                while token:
+                    out.write(token)
+                    token = fileitem.file.read(1024)
 
             print("\nFile saved to: " + fullname)
 
