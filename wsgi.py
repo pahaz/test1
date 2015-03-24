@@ -1,4 +1,5 @@
 import wsgiref.validate
+import router as router_module
 
 from utils import parse_http_x_www_form_urlencoded_post_data, \
     get_first_element, parse_http_get_data, parse_http_headers, \
@@ -7,6 +8,8 @@ from utils import parse_http_x_www_form_urlencoded_post_data, \
 DEBUG = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'data/'
+
+router = router_module.Router()
 
 data_messages = [
     b'Name: user<br>Message: hi!',
@@ -29,6 +32,9 @@ def application(environ, start_response):
 
     status = '200 OK'
     headers = [('Content-type', 'text/html; charset=utf-8')]
+
+    callback = router.resolve(URI_PATH)
+    status, body = callback
 
     if URI_PATH == '/favicon.ico':
         status = '404 Not Found'
