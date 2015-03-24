@@ -5,13 +5,14 @@
     <title></title>
 </head>
 <body>
-<img src="/static/logo.png" alt="logo"/> <hr>
+<img src="static/logo.png" alt="logo"/> <hr>
 {{messages}}
 <hr>
-<form action="/" method="post" enctype="application/x-www-form-urlencoded">
-    <input type="text" name="name" style="width: 100%" placeholder="Name" /> <br>
+<form action="/" method="post" enctype="multipart/form-data">
+    <input type="text" name="name" style="width: 100%" placeholder="Name"> <br>
     <textarea name="message" rows="10" style="width: 100%" placeholder="Message"></textarea> <br>
-    <input type="submit"/>
+	<input type="file" name="file">
+    <input type="submit"><br>
 </form>
 </body>
 </html>

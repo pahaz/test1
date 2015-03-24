@@ -32,6 +32,25 @@ def parse_http_x_www_form_urlencoded_post_data(environ):
     body_query_dict = parse_qs(request_body_text)
     return body_query_dict
 
+def parse_http_multipart_form_data(environ):
+    """
+    Parse HTTP 'multipart/form-data' post data.
+    """
+    try:
+        request_body_size = int(environ.get("CONTENT_LENGTH", 0))
+    except ValueError:
+        request_body_size = 0
+
+    CONTENT_TYPE, CONTENT_TYPE_KWARGS = parse_http_content_type(environ)
+    if CONTENT_TYPE != 'multipart/form-data':
+        warn(" * WARNING * Used parse_http_multipart_form_data "
+             "when CONTENT_TYPE != 'multipart/form-data'")
+        return {}
+
+    CONTENT_TYPE_KWARGS['boundary'] = CONTENT_TYPE_KWARGS['boundary'].encode()
+    form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+    return {'name':form.getvalue('name'), 'message':form.getvalue('message'),
+    'filename':form['file'].filename, 'file':form.getvalue('file')}
 
 def parse_http_content_type(environ):
     return cgi.parse_header(environ.get('CONTENT_TYPE', ''))
