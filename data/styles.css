@@ -1,0 +1,43 @@
+body {
+  font-family: sans-serif;
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.message {
+  color: #333;
+  font-size: 14px;
+  margin: 0px 10px;
+  width: 580px;
+}
+
+.name {
+  color: darkblue;
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0px 0px 5px 10px;
+  width: 580px;
+}
+
+.input-area {
+  margin: 10px;
+}
+
+.logo-image {
+  width: 100px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  
+}
+
+.related {
+  width: 150px;
+  margin: 10px;
+  margin-bottom: 0px;
+}
+
+hr {
+  color: white;
+}
