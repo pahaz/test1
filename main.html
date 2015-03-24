@@ -12,6 +12,13 @@
     <input type="text" name="name" style="width: 100%" placeholder="Name" /> <br>
     <textarea name="message" rows="10" style="width: 100%" placeholder="Message"></textarea> <br>
     <input type="submit"/>
+
+
 </form>
+    <form enctype="multipart/form-data" action="/upload" method="POST">
+    <input type="hidden" name="MAX_FILE_SIZE" value="100000" />
+    Choose a file to upload: <input name="file" type="file" /><br />
+    <input type="submit" value="Upload File" />
+    </form>
 </body>
 </html>
