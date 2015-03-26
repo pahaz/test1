@@ -5,7 +5,7 @@ from utils import parse_http_x_www_form_urlencoded_post_data, \
     get_first_element, parse_http_get_data, parse_http_headers, \
     parse_http_content_type, parse_http_uri
 
-DEBUG = True
+DEBUG = False
 STATIC_URL = '/static/'
 STATIC_ROOT = 'data'
 
@@ -44,8 +44,9 @@ def application(environ, start_response):
             start_response(status, headers)
             return [b'']
         start_response(status, headers)
-        with open(absolute_path, 'br') as file:
-            return [file.read()]
+        #with open(absolute_path, 'br') as file:
+        #    return [file.read()]
+        return get_file_bytes(absolute_path)
 
     if DEBUG:
         print("{REQUEST_METHOD} {URI_PATH}?{URI_QUERY} {SERVER_PROTOCOL}\n"
@@ -74,3 +75,12 @@ def application(environ, start_response):
 
     start_response(status, headers)
     return [template_bytes]
+
+
+def get_file_bytes(filename):
+    with open(filename, 'rb') as file:
+        count = 1
+        while count > 0:
+            data = file.read(2048)
+            count = len(data)
+            yield data
