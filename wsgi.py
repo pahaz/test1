@@ -1,4 +1,5 @@
 import wsgiref.validate
+import os.path as path
 
 from conteroller import index
 from router import Router
@@ -34,7 +35,15 @@ def application(environ, start_response):
     status, body = controller_callback(REQUEST_METHOD, GET, POST, headers)
 
     if URI_PATH.startswith(STATIC_URL):
-        print('STATIC FILE DETECTED!')
+        with_static_root = URI_PATH.replace(STATIC_URL, '{}/'.format(STATIC_ROOT), 1)
+        absolute_path = path.abspath(with_static_root)
+        if not absolute_path.startswith(path.abspath(STATIC_ROOT)) or not path.isfile(absolute_path):
+            status = '404 Not Found'
+            start_response(status, headers)
+            return [b'']
+        start_response(status, headers)
+        with open(absolute_path, 'br') as file:
+            return [file.read()]
 
     if DEBUG:
         print("{REQUEST_METHOD} {URI_PATH}?{URI_QUERY} {SERVER_PROTOCOL}\n"
