@@ -1,4 +1,6 @@
 from __future__ import unicode_literals, print_function, generators, division
+import cgi
+import os
 from manager import Manager
 from model import Message
 from utils import get_first_element
@@ -8,6 +10,8 @@ __author__ = 'pahaz'
 
 view = View('main.html')
 manager = Manager('data.db')
+
+STATIC_ROOT = 'data/'
 
 
 def index(method, get, post, headers):
@@ -23,10 +27,21 @@ def index(method, get, post, headers):
 
         headers.append(('Location', '/'))
 
-        message_name = get_first_element(post, 'name', '')
-        message_message = get_first_element(post, 'message', '')
+        fileItem = post['file']
+        if fileItem.filename:
+            fullPath = os.path.join(STATIC_ROOT, fileItem.filename)
+            i = 0
+            while os.path.exists(fullPath):
+                fullPath = os.path.join(STATIC_ROOT, "(" + str(i) + ")" + fileItem.filename)
+                i += 1
+            with open(fullPath, "wb") as out:
+                out.write(fileItem.file.read())
 
-        message = Message(message_name, message_message)
-        manager.save(message)
+        message_name = post['name'].value
+        message_message = post['message'].value
+
+        if message_name != "" or message_message != "":
+            message = Message(message_name, message_message)
+            manager.save(message)
 
     return status, body
