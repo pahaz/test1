@@ -1,51 +1,34 @@
-from __future__ import unicode_literals, print_function, generators, division
 import shelve
-
-from model import Message
-
-
-__author__ = 'pahaz'
+import model
 
 
 class Manager:
-    def __init__(self, db_name):
-        self._db = shelve.open(db_name)
+    def __init__(self, db_path):
+        self._db = shelve.open(db_path)
 
-    def all(self):
-        messagers = []
-        for id, data in self._db.items():
-            m = Message(data['name'], data['message'])
-            m.id = str(id)
-            messagers.append(m)
-        messagers.sort(key=lambda x: x.id)
-        return messagers
+    def get_all(self):
+        entries = []
+        for m_id, entry in self._db.items():
+            e = model.Entry(entry['name'], entry['message'])
+            e.m_id = int(m_id)
+            entries.append(e)
+        return sorted(entries, key=lambda e: e.m_id)
 
-    def save(self, message):
-        data = {
-            'message': message.message,
-            'name': message.name,
+    def save(self, entry):
+        m_id = str(entry.m_id or
+                   max((int(key) + 1 for key in self._db.keys()), default=0))
+        self._db[m_id] = {
+            'message': entry.message,
+            'name': entry.name
         }
-
-        if message.id:
-            self._db[message.id] = data
-        else:
-            try:
-                max_id = max(map(int, self._db.keys()))
-            except ValueError:
-                max_id = 1
-            self._db[str(max_id + 1)] = data
-
         self._db.sync()
 
-    def delete(self, message):
-        if message.id:
-            del self._db[message.id]
+    def delete(self, entry):
+        if entry.m_id:
+            del self._db[str(entry.m_id)]
             self._db.sync()
             return True
         return False
 
-    def filter_by_name(self, name):
-        return [m for m in self.all() if m.name == name]
-
-    def close(self):
-        self._db.close()
+    def get_filtered_by_name(self, name):
+        return [e for e in self.get_all() if e.name == name]

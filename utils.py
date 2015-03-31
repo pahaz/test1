@@ -3,6 +3,8 @@ from urllib.parse import parse_qs
 from warnings import warn
 from wsgiref.headers import Headers
 from wsgiref.util import request_uri
+import os.path
+import config
 
 
 def parse_http_get_data(environ):
@@ -67,3 +69,17 @@ def get_first_element(dict_, key, default=None):
     if type(val) in (list, tuple) and len(val) > 0:
         val = val[0]
     return val
+
+
+def get_file_path(requested_uri, base_uri):
+    requested_path = os.path.abspath(os.path.relpath(requested_uri, config.APPLICATION_BASE_DIR))
+    base_path = os.path.abspath(os.path.relpath(base_uri, config.APPLICATION_BASE_DIR))
+    common_prefix = os.path.commonprefix([requested_path, base_path]) + os.sep
+    if not common_prefix.startswith(base_path + os.sep):
+        raise IOError()
+    return requested_path
+
+
+def get_file_contents(file_path):
+    with open(file_path, 'rb') as file:
+        return file.read()

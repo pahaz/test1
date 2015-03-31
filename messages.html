@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8" />
+        <title>Messages</title>
+    </head>
+    <body>
+        <img src="/static/logo.png" alt="logo" /><br />
+        <a href="/home">Home</a>
+        <hr />
+        {{messages}}
+        <hr />
+        <form action="/messages" method="post" enctype="application/x-www-form-urlencoded">
+            <input type="text" name="name" style="width: 100%" placeholder="Name" /><br />
+            <textarea name="message" rows="10" style="width: 100%" placeholder="Message"></textarea><br />
+            <input type="submit" />
+        </form>
+    </body>
+</html>

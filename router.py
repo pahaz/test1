@@ -1,22 +1,19 @@
-from __future__ import unicode_literals, print_function, generators, division
-
-__author__ = 'pahaz'
+import response
 
 
 class Router:
     def __init__(self):
-        self._routs = {}
+        self._routes = {}
 
-    def register_controller(self, url, controller):
-        self._routs[url] = controller
+    def add_route(self, uri_prefix, controller):
+        self._routes[uri_prefix] = controller
 
-    def resolve(self, url):
-        callback = self._routs.get(url)
-        if callback:
-            return callback
-        return self.default_controller
+    def resolve(self, uri_path):
+        for uri_prefix in self._routes:
+            if uri_path.startswith(uri_prefix):
+                return self._routes[uri_prefix]
+        return self.default_callback
 
-    def default_controller(self, *args, **kwargs):
-        status = '404 Not Found'
-        body = b''
-        return status, body
+    @staticmethod
+    def default_callback(request):
+        return response.default_responses[404]
