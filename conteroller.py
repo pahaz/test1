@@ -30,3 +30,22 @@ def index(method, get, post, headers):
         manager.save(message)
 
     return status, body
+
+
+def add(method, get, post, headers):
+    a = get_first_element(get, 'a', '')
+    b = get_first_element(get, 'b', '')
+    print(a, b)
+    status = '200 OK'
+    summ = int(a) + int(b)
+    body = b'<p>' + str(summ).encode() + b'</p>'
+    return status, body
+
+
+# def static(method, get, post, headers):
+#     headers[0] = ('Content-type', 'image/png; charset=utf-8')
+#     status = '200 OK'
+#     f = open('data/logo.png', 'rb')
+#     body = f.read()
+#     f.close()
+#     return status, body

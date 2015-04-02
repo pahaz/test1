@@ -12,11 +12,13 @@ class Router:
 
     def resolve(self, url):
         callback = self._routs.get(url)
+        # print('Tanya', callback, url, self._routs)
         if callback:
             return callback
         return self.default_controller
 
     def default_controller(self, *args, **kwargs):
+        print("Jopka")
         status = '404 Not Found'
         body = b''
         return status, body
