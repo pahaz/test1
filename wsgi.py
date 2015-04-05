@@ -1,3 +1,5 @@
+import cgi
+import os
 import wsgiref.validate
 
 from conteroller import index
@@ -9,7 +11,7 @@ from utils import parse_http_x_www_form_urlencoded_post_data, \
 
 DEBUG = True
 STATIC_URL = '/static/'
-STATIC_ROOT = 'data'
+STATIC_ROOT = 'data/'
 
 router = Router()
 router.register_controller('/', index)
@@ -25,7 +27,7 @@ def application(environ, start_response):
     URI_PATH = environ['PATH_INFO']
     URI_QUERY = environ['QUERY_STRING']
     URI = parse_http_uri(environ)
-    POST = parse_http_x_www_form_urlencoded_post_data(environ)
+    POST = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ, keep_blank_values=True)
     GET = parse_http_get_data(environ)
 
     headers = [('Content-type', 'text/html; charset=utf-8')]
@@ -34,7 +36,19 @@ def application(environ, start_response):
     status, body = controller_callback(REQUEST_METHOD, GET, POST, headers)
 
     if URI_PATH.startswith(STATIC_URL):
-        print('STATIC FILE DETECTED!')
+        URI_PATH = URI_PATH.replace(STATIC_URL, STATIC_ROOT)
+        URI_PATH = os.path.normpath(URI_PATH)
+        if os.path.exists(URI_PATH):
+            with open(URI_PATH, 'rb') as f:
+                contentLogo = f.read()
+            status = '200 OK'
+            headers = [('Content-type', "application/octet-stream")]
+            start_response(status, headers)
+            return [contentLogo]
+
+        status = '404 Not Found'
+        start_response(status, headers)
+        return [b'']
 
     if DEBUG:
         print("{REQUEST_METHOD} {URI_PATH}?{URI_QUERY} {SERVER_PROTOCOL}\n"
