@@ -88,5 +88,13 @@ def generate_name(dirname, extension):
     return filename
 
 
+def buffered(fileitem, chunk_size):
+    while True:
+        chunk = fileitem.read(chunk_size)
+        if not chunk:
+            break
+        yield chunk
+
+
 def remove_html_tags(line):
     return re.sub(r'<[^>]*>', '', line)

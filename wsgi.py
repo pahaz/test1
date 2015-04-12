@@ -7,7 +7,7 @@ import wsgiref.validate
 from utils import parse_http_x_www_form_urlencoded_post_data, \
     get_first_element, parse_http_get_data, parse_http_headers, \
     parse_http_content_type, parse_http_uri, remove_html_tags, \
-    generate_name
+    generate_name, buffered
 
 
 CWD = os.path.dirname(os.path.abspath(__file__))
@@ -60,8 +60,8 @@ def application(environ, start_response):
                 raise IOError
 
             with open(normalized_path, 'rb') as f:
-                content = f.read()
                 mime_type = mimetypes.guess_type(normalized_path)[0]
+                content = buffered(f, 1024)
 
         except IOError:
             status = '404 Not Found'
@@ -71,7 +71,7 @@ def application(environ, start_response):
         status = '200 OK'
         headers = [('Content-type', mime_type)]
         start_response(status, headers)
-        return [content]
+        return content
 
     if DEBUG:
         print("{REQUEST_METHOD} {URI_PATH}?{URI_QUERY} {SERVER_PROTOCOL}\n"
@@ -107,10 +107,8 @@ def application(environ, start_response):
             fullname = os.path.join(STATIC_ROOT, filename)
 
             with open(fullname, 'wb') as out:
-                token = fileitem.file.read(1024)
-                while token:
-                    out.write(token)
-                    token = fileitem.file.read(1024)
+                for chunk in buffered(fileitem.file, 1024):
+                    out.write(chunk)
 
             print("\nFile saved to: " + fullname)
 
