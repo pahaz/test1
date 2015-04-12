@@ -59,9 +59,9 @@ def application(environ, start_response):
             if not normalized_path.startswith(STATIC_ROOT):
                 raise IOError
 
-            with open(normalized_path, 'rb') as f:
-                mime_type = mimetypes.guess_type(normalized_path)[0]
-                content = buffered(f, 1024)
+            f = open(normalized_path, 'rb')
+            mime_type = mimetypes.guess_type(normalized_path)[0]
+            content = buffered(f)
 
         except IOError:
             status = '404 Not Found'
@@ -97,17 +97,17 @@ def application(environ, start_response):
         name = remove_html_tags(POST.getfirst('name'))
         name = name if name else 'anonymous'
         message = remove_html_tags(POST.getfirst('message'))
-        fileitem = POST.getfirst('file')
+        fileitem = POST['file']
 
         message_text = MESSAGE_PATTERN.format(name=name, message=message)
 
         if fileitem.filename:
             extension = os.path.splitext(fileitem.filename)[1]
-            filename = generate_name(STATIC_ROOT, extension, 10)
+            filename = generate_name(STATIC_ROOT, extension)
             fullname = os.path.join(STATIC_ROOT, filename)
 
             with open(fullname, 'wb') as out:
-                for chunk in buffered(fileitem.file, 1024):
+                for chunk in buffered(fileitem.file):
                     out.write(chunk)
 
             print("\nFile saved to: " + fullname)
