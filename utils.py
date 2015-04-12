@@ -88,12 +88,12 @@ def generate_name(dirname, extension):
     return filename
 
 
-def buffered(fileitem, chunk_size):
+def buffered(fileitem, block_size=1024):
     while True:
-        chunk = fileitem.read(chunk_size)
-        if not chunk:
+        block = fileitem.read(block_size)
+        if not block:
             break
-        yield chunk
+        yield block
 
 
 def remove_html_tags(line):
