@@ -7,7 +7,7 @@ import wsgiref.validate
 from utils import parse_http_x_www_form_urlencoded_post_data, \
     get_first_element, parse_http_get_data, parse_http_headers, \
     parse_http_content_type, parse_http_uri, remove_html_tags, \
-    generate_random_name
+    generate_name
 
 
 CWD = os.path.dirname(os.path.abspath(__file__))
@@ -62,7 +62,8 @@ def application(environ, start_response):
             with open(normalized_path, 'rb') as f:
                 content = f.read()
                 mime_type = mimetypes.guess_type(normalized_path)[0]
-        except:
+
+        except IOError:
             status = '404 Not Found'
             start_response(status, headers)
             return [b'']
@@ -96,13 +97,13 @@ def application(environ, start_response):
         name = remove_html_tags(POST.getfirst('name'))
         name = name if name else 'anonymous'
         message = remove_html_tags(POST.getfirst('message'))
-        fileitem = POST['file']
+        fileitem = POST.getfirst('file')
 
         message_text = MESSAGE_PATTERN.format(name=name, message=message)
 
         if fileitem.filename:
             extension = os.path.splitext(fileitem.filename)[1]
-            filename = generate_random_name(STATIC_ROOT, extension, 10)
+            filename = generate_name(STATIC_ROOT, extension, 10)
             fullname = os.path.join(STATIC_ROOT, filename)
 
             with open(fullname, 'wb') as out:

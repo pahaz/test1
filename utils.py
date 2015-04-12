@@ -1,6 +1,7 @@
 import os
 import re
 import cgi
+import time
 import random
 
 from urllib.parse import parse_qs
@@ -73,13 +74,16 @@ def get_first_element(dict_, key, default=None):
     return val
 
 
-def generate_random_name(dirname, extension, name_length):
-    upper_border = int('9'*name_length)
-    name = '{0:0>{name_length}}{extension}'
+def generate_name(dirname, extension):
+    if not extension.startswith('.'):
+        extension = '.' + extension
 
-    filename = name.format(random.randint(0, upper_border), **locals())
+    def current_time_str():
+        return str(round(time.time() * 1000))
+
+    filename = current_time_str() + extension
     while os.path.isfile(os.path.join(dirname, filename)):
-        filename = name.format(random.randint(0, upper_border), **locals())
+        filename = current_time_str() + extension
 
     return filename
 
